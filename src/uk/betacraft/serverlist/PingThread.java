@@ -45,7 +45,7 @@ public class PingThread extends Thread {
 					
 					if (BCPing.config.send_players) {
 						String listString = online.stream().map(Player::getName)
-		                        .collect(Collectors.joining(", "));
+		                        .collect(Collectors.joining(","));
 						jobj.addProperty("player_names", listString);
 					} else {
 						jobj.addProperty("player_names", "");
