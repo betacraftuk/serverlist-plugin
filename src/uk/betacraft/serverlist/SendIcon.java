@@ -30,7 +30,11 @@ public class SendIcon {
 				
 				JsonObject jobj = new JsonObject();
 				jobj.addProperty("connect_socket", BCPing.config.connect_socket);
-				jobj.addProperty("icon", icon);
+				if (icon == null) {
+					jobj.addProperty("icon", "");
+				} else {
+					jobj.addProperty("icon", icon);
+				}
 				
 				String data = BCPing.gson.toJson(jobj);
 				

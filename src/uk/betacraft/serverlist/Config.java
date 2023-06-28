@@ -101,6 +101,7 @@ public class Config {
 			File iconfile = new File("plugins/BetacraftPing/server_icon.png");
 			if (!iconfile.exists()) {
 				BCPing.log.warning("[BetacraftPing] No server icon found!");
+				return icon;
 			}
 			
 			if (iconfile.length() > 64000) {
