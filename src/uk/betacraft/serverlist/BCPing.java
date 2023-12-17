@@ -34,7 +34,7 @@ public class BCPing extends JavaPlugin {
 	public static boolean running = true;
 	public static boolean uberbukkit = false;
 	
-	// "http://localhost:2137"
+	//protected static final String HOST = "http://localhost:2137";
 	protected static final String HOST = "https://api.betacraft.uk/v2";
 
 	public void onEnable() {
