@@ -9,15 +9,17 @@ import java.util.stream.Collectors;
 
 import com.google.gson.JsonObject;
 
+import uk.betacraft.serverlist.PingThread.ErrResponse;
+
 public class SendIcon {
 
 	public static void sendIcon() {
-		
+
 		String icon = Config.getIcon();
-		
+
 		HttpURLConnection con = null;
 		try {
-			URL url = new URL("https://api.betacraft.uk/v2/server_update_icon");
+			URL url = new URL(BCPing.HOST + "/server_update_icon");
 			try {
 				con = (HttpURLConnection) url.openConnection();
 				con.setRequestMethod("POST");
@@ -27,7 +29,7 @@ public class SendIcon {
 				con.setDoInput(true);
 
 				OutputStream os = con.getOutputStream();
-				
+
 				JsonObject jobj = new JsonObject();
 				jobj.addProperty("connect_socket", BCPing.config.connect_socket);
 				if (icon == null) {
@@ -35,27 +37,31 @@ public class SendIcon {
 				} else {
 					jobj.addProperty("icon", icon);
 				}
-				
+
 				String data = BCPing.gson.toJson(jobj);
-				
+
 				byte[] json = data.getBytes("UTF-8");
 
 				os.write(json);
 				os.flush();
 				os.close();
 
-				String privatekey = new BufferedReader(new InputStreamReader(con.getInputStream()))
-						   .lines().collect(Collectors.joining("\n"));
-				if (privatekey != null && privatekey.contains("Success")) {
-					BCPing.log.info("[BetacraftPing] Server icon updated successfully.");
+				// process response
+				ErrResponse response = PingThread.readResponse(con.getInputStream());
+				if (response != null) {
+					if (!response.error) {
+						BCPing.log.info("[BetacraftPing] Server icon updated successfully.");
+					} else {
+						BCPing.log.info("[BetacraftPing] Failed to update server icon");
+						BCPing.log.info("[BetacraftPing] Error: \"" + response.msg + "\"");
+					}
 				} else {
-					BCPing.log.info("[BetacraftPing] Failed to update server icon");
-					BCPing.log.info("[BetacraftPing] Error: \"" + privatekey + "\"");
+					BCPing.log.info("[BetacraftPing] Failed to read ping response (is null)");
 				}
 			} catch (Throwable t) {
 				BCPing.log.warning("[BetacraftPing] Failed to update server icon (" + t.getMessage() + ")");
 				String result = new BufferedReader(new InputStreamReader(con.getErrorStream()))
-						   .lines().collect(Collectors.joining("\n"));
+						.lines().collect(Collectors.joining("\n"));
 				BCPing.log.info("[BetacraftPing] Error: \"" + result + "\"");
 			}
 		} catch (Throwable t) {
