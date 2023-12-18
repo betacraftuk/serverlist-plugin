@@ -10,10 +10,10 @@ public class Config {
 	public static uk.betacraft.bukkitversion.Config config;
 
 	public String name = "";
-	public String connect_version = "";
-	public String connect_protocol = "";
-	public String connect_socket = "";
-	public String version_category = "";
+	public String game_version = "";
+	public String protocol = "";
+	public String socket = "";
+	public String category = "";
 	public String description = "";
 	public transient Boolean send_players = true;
 	

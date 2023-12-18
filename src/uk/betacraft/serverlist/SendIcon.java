@@ -31,7 +31,7 @@ public class SendIcon {
 				OutputStream os = con.getOutputStream();
 
 				JsonObject jobj = new JsonObject();
-				jobj.addProperty("connect_socket", BCPing.config.connect_socket);
+				jobj.addProperty("connect_socket", BCPing.config.socket);
 				if (icon == null) {
 					jobj.addProperty("icon", "");
 				} else {
@@ -53,7 +53,7 @@ public class SendIcon {
 						BCPing.log.info("[BetacraftPing] Server icon updated successfully.");
 					} else {
 						BCPing.log.info("[BetacraftPing] Failed to update server icon");
-						BCPing.log.info("[BetacraftPing] Error: \"" + response.msg + "\"");
+						BCPing.log.info("[BetacraftPing] Error: \"" + response.message + "\"");
 					}
 				} else {
 					BCPing.log.info("[BetacraftPing] Failed to read ping response (is null)");

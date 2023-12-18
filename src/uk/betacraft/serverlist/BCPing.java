@@ -71,17 +71,17 @@ public class BCPing extends JavaPlugin {
 			if (serverip.equals("")) {
 				serverip = getIPFromAmazon();
 			}
-			config.connect_socket = serverip + ":" + Bukkit.getServer().getPort();
+			config.socket = serverip + ":" + Bukkit.getServer().getPort();
 			config.name = "A Minecraft server";
 			config.description = "";
-			config.version_category = Config.getCategory();
-			config.connect_protocol = Config.getPVN();
+			config.category = Config.getCategory();
+			config.protocol = Config.getPVN();
 			config.send_players = true;
 			
 			if (uberbukkit) {
-				config.connect_version = Config.getLatestForPVN(config.connect_protocol);
+				config.game_version = Config.getLatestForPVN(config.protocol);
 			} else {
-				config.connect_version = bukkitversion.getVersion();
+				config.game_version = bukkitversion.getVersion();
 			}
 			
 			try {

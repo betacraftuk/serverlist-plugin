@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 
@@ -35,22 +35,36 @@ public class PingThread extends Thread {
 
 					OutputStream os = con.getOutputStream();
 
-					ArrayList<Player> online = BCPing.bukkitversion.getOnlinePlayers();
+					ArrayList<org.bukkit.entity.Player> online = BCPing.bukkitversion.getOnlinePlayers();
 
 					JsonObject jobj = (JsonObject) BCPing.gson.toJsonTree(BCPing.config);
 
 					jobj.addProperty("max_players", Bukkit.getServer().getMaxPlayers());
 					jobj.addProperty("online_players", online.size());
-					jobj.addProperty("software_name", Bukkit.getServer().getName());
-					jobj.addProperty("software_version", Bukkit.getServer().getVersion());
-					jobj.addProperty("connect_online_mode", Bukkit.getServer().getOnlineMode());
+					
+					JsonObject software = new JsonObject();
+					software.addProperty("name", Bukkit.getServer().getName());
+					software.addProperty("version", Bukkit.getServer().getVersion());
+					jobj.add("software", software);
+					
+					jobj.addProperty("online_mode", Bukkit.getServer().getOnlineMode());
 
 					if (BCPing.config.send_players) {
-						String listString = online.stream().map(Player::getName)
-								.collect(Collectors.joining(","));
-						jobj.addProperty("player_names", listString);
+						
+						JsonArray jarr = new JsonArray();
+						
+						for (org.bukkit.entity.Player bplayer : online) {
+							
+							JsonObject pobj = new JsonObject();
+							
+							pobj.addProperty("username", bplayer.getName());
+							jarr.add(pobj);
+						}
+						
+						
+						jobj.add("players", jarr);
 					} else {
-						jobj.addProperty("player_names", "");
+						jobj.add("players", new JsonArray());
 					}
 
 
@@ -77,7 +91,7 @@ public class PingThread extends Thread {
 							failsInARow++;
 							if (failsInARow <= 5) {
 								BCPing.log.info("[BetacraftPing] Failed to ping the server list");
-								BCPing.log.info("[BetacraftPing] Error: \"" + response.msg + "\"");
+								BCPing.log.info("[BetacraftPing] Error: \"" + response.message + "\"");
 							}
 						}
 					} else {
@@ -138,9 +152,9 @@ public class PingThread extends Thread {
 			return null;
 		}
 	}
-
+	
 	public static class ErrResponse {
 		public boolean error;
-		public String msg;
+		public String message;
 	}
 }
