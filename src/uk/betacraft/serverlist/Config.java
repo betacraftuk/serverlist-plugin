@@ -15,7 +15,7 @@ public class Config {
 	public String socket = "";
 	public String category = "";
 	public String description = "";
-	public transient Boolean send_players = true;
+	public boolean send_players = true;
 	
 	public static String getPVN() {
 		if (BCPing.uberbukkit) {
