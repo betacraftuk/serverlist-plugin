@@ -31,11 +31,15 @@ public class SendIcon {
 				OutputStream os = con.getOutputStream();
 
 				JsonObject jobj = new JsonObject();
-				jobj.addProperty("connect_socket", BCPing.config.socket);
+				jobj.addProperty("socket", BCPing.config.socket);
 				if (icon == null) {
 					jobj.addProperty("icon", "");
 				} else {
 					jobj.addProperty("icon", icon);
+				}
+				
+				if (BCPing.config.private_key != null) {
+					jobj.addProperty("private_key", BCPing.config.private_key);
 				}
 
 				String data = BCPing.gson.toJson(jobj);

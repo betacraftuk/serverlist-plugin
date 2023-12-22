@@ -16,6 +16,7 @@ public class Config {
 	public String category = "";
 	public String description = "";
 	public boolean send_players = true;
+	public String private_key = null; // don't include by default, so `null`
 	
 	public static String getPVN() {
 		if (BCPing.uberbukkit) {
