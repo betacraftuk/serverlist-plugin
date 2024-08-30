@@ -15,6 +15,7 @@ public class Config {
     public String socket = "";
     public String category = "";
     public String description = "";
+    public String v1_version = "";
     public boolean send_players = true;
     public String private_key = null; // don't include by default, so `null`
 

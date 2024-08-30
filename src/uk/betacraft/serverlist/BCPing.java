@@ -29,10 +29,13 @@ public class BCPing extends JavaPlugin {
     public static BukkitVersion bukkitversion;
     public static Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    PingThread thread;
+    PingThread pingThread;
+    UpdateThread updateThread;
     public static Config config;
     public static boolean running = true;
     public static boolean uberbukkit = false;
+
+    public static String PLUGIN_VERSION = "";
 
     //protected static final String HOST = "http://localhost:2137";
     protected static final String HOST = "https://api.betacraft.uk/v2";
@@ -41,6 +44,8 @@ public class BCPing extends JavaPlugin {
         server = this.getServer();
         log = this.getServer().getLogger();
         bukkitversion = new BukkitVersion(this);
+
+        PLUGIN_VERSION = this.getDescription().getVersion();
 
         log.info("[BetacraftPing] BetacraftPing v" + this.getDescription().getVersion() + " enabled.");
 
@@ -79,9 +84,9 @@ public class BCPing extends JavaPlugin {
             config.send_players = true;
 
             if (uberbukkit) {
-                config.game_version = Config.getLatestForPVN(config.protocol);
+                config.game_version = config.v1_version = Config.getLatestForPVN(config.protocol);
             } else {
-                config.game_version = bukkitversion.getVersion();
+                config.game_version = config.v1_version = bukkitversion.getVersion();
             }
 
             try {
@@ -99,14 +104,25 @@ public class BCPing extends JavaPlugin {
 
         SendIcon.sendIcon();
 
-        thread = new PingThread();
-        thread.start();
+        pingThread = new PingThread();
+        pingThread.start();
+
+        updateThread = new UpdateThread();
+        updateThread.start();
     }
 
     public void onDisable() {
+        if (UpdateThread.update)
+            log.info("[BetacraftPing] Download latest plugin update from " + UpdateThread.newestRelease.get("html_url").getAsString());
+
         log.info("[BetacraftPing] Disabling...");
         running = false;
-        if (thread != null) thread.interrupt();
+
+        if (pingThread != null)
+            pingThread.interrupt();
+
+        if (updateThread != null)
+            updateThread.interrupt();
     }
 
     public static String getIPFromAmazon() {

@@ -117,7 +117,15 @@ public class PingThread extends Thread {
                                 .lines().collect(Collectors.joining("\n"));
                         BCPing.log.info("[BetacraftPing] Error: \"" + result + "\"");
                     }
-                    Thread.sleep(60000);
+                    
+                    try {
+                        Thread.sleep(60000);
+                    } catch (Throwable t2) {
+                        if (!BCPing.running)
+                            return;
+                        
+                        t2.printStackTrace();
+                    }
                 }
 
             }
@@ -130,7 +138,7 @@ public class PingThread extends Thread {
         }
     }
 
-    public static ErrResponse readResponse(InputStream is) {
+    public static String readStringResponse(InputStream is) {
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
@@ -142,11 +150,17 @@ public class PingThread extends Thread {
             }
 
             buffer.flush();
-            String responString = new String(buffer.toByteArray());
 
-            //System.out.println(responString);
+            return new String(buffer.toByteArray());
+        } catch (Throwable t) {
+            BCPing.log.warning("Failed to read response: " + t.getMessage());
+            return null;
+        }
+    }
 
-            return BCPing.gson.fromJson(responString, ErrResponse.class);
+    public static ErrResponse readResponse(InputStream is) {
+        try {
+            return BCPing.gson.fromJson(readStringResponse(is), ErrResponse.class);
         } catch (Throwable t) {
             BCPing.log.warning("Failed to read response: " + t.getMessage());
             return null;
