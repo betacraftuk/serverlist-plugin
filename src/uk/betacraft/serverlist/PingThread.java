@@ -18,143 +18,143 @@ import com.google.gson.JsonObject;
 
 public class PingThread extends Thread {
 
-	@Override
-	public void run() {
-		HttpURLConnection con = null;
-		try {
-			URL url = new URL(BCPing.HOST + "/server_update");
-			int failsInARow = 0;
-			while (BCPing.running) {
-				try {
-					con = (HttpURLConnection) url.openConnection();
-					con.setRequestMethod("POST");
-					con.addRequestProperty("Content-Type", "application/json");
-					con.setUseCaches(false);
-					con.setDoOutput(true);
-					con.setDoInput(true);
+    @Override
+    public void run() {
+        HttpURLConnection con = null;
+        try {
+            URL url = new URL(BCPing.HOST + "/server_update");
+            int failsInARow = 0;
+            while (BCPing.running) {
+                try {
+                    con = (HttpURLConnection) url.openConnection();
+                    con.setRequestMethod("POST");
+                    con.addRequestProperty("Content-Type", "application/json");
+                    con.setUseCaches(false);
+                    con.setDoOutput(true);
+                    con.setDoInput(true);
 
-					OutputStream os = con.getOutputStream();
+                    OutputStream os = con.getOutputStream();
 
-					ArrayList<org.bukkit.entity.Player> online = BCPing.bukkitversion.getOnlinePlayers();
+                    ArrayList<org.bukkit.entity.Player> online = BCPing.bukkitversion.getOnlinePlayers();
 
-					JsonObject jobj = (JsonObject) BCPing.gson.toJsonTree(BCPing.config);
+                    JsonObject jobj = (JsonObject) BCPing.gson.toJsonTree(BCPing.config);
 
-					jobj.addProperty("max_players", Bukkit.getServer().getMaxPlayers());
-					jobj.addProperty("online_players", online.size());
-					
-					JsonObject software = new JsonObject();
-					software.addProperty("name", Bukkit.getServer().getName());
-					software.addProperty("version", Bukkit.getServer().getVersion());
-					jobj.add("software", software);
-					
-					jobj.addProperty("online_mode", Bukkit.getServer().getOnlineMode());
+                    jobj.addProperty("max_players", Bukkit.getServer().getMaxPlayers());
+                    jobj.addProperty("online_players", online.size());
 
-					if (BCPing.config.send_players) {
-						
-						JsonArray jarr = new JsonArray();
-						
-						for (org.bukkit.entity.Player bplayer : online) {
-							
-							JsonObject pobj = new JsonObject();
-							
-							pobj.addProperty("username", bplayer.getName());
-							jarr.add(pobj);
-						}
-						
-						
-						jobj.add("players", jarr);
-					} else {
-						jobj.add("players", new JsonArray());
-					}
+                    JsonObject software = new JsonObject();
+                    software.addProperty("name", Bukkit.getServer().getName());
+                    software.addProperty("version", Bukkit.getServer().getVersion());
+                    jobj.add("software", software);
+
+                    jobj.addProperty("online_mode", Bukkit.getServer().getOnlineMode());
+
+                    if (BCPing.config.send_players) {
+
+                        JsonArray jarr = new JsonArray();
+
+                        for (org.bukkit.entity.Player bplayer : online) {
+
+                            JsonObject pobj = new JsonObject();
+
+                            pobj.addProperty("username", bplayer.getName());
+                            jarr.add(pobj);
+                        }
 
 
-					String data = BCPing.gson.toJson(jobj);
-					//BCPing.log.info(data);
-
-					byte[] json = data.getBytes("UTF-8");
-
-					os.write(json);
-					os.flush();
-					os.close();
-
-					// process response
-					ErrResponse response = readResponse(con.getInputStream());
-
-					if (response != null) {
-						if (!response.error) {
-							if (failsInARow != 0) {
-								BCPing.log.info("[BetacraftPing] Server list ping was successful");
-								//BCPing.log.info("[BetaCraftPing] You can customize your server's appearance on the list by going to: 'https://api.betacraft.uk/edit_server.jsp?id=" + privatekey + "'");
-							}
-							failsInARow = 0;
-						} else {
-							failsInARow++;
-							if (failsInARow <= 5) {
-								BCPing.log.info("[BetacraftPing] Failed to ping the server list");
-								BCPing.log.info("[BetacraftPing] Error: \"" + response.message + "\"");
-							}
-						}
-					} else {
-						failsInARow++;
-						if (failsInARow <= 5) {
-							BCPing.log.info("[BetacraftPing] Failed to read ping response (is null)");
-						}
-					}
-
-					Thread.sleep(60000);
-				} catch (Throwable t) {
-					// Prevent fail messages at server shutdown
-					if (!BCPing.running)
-						return;
-					//t.printStackTrace();
-					failsInARow++;
-					if (failsInARow <= 5) {
-						BCPing.log.warning("[BetacraftPing] Failed to ping server list. (" + t.getMessage() + ")");
-						BCPing.log.warning("[BetacraftPing] Perhaps ping_details.json is not configured properly?");
+                        jobj.add("players", jarr);
+                    } else {
+                        jobj.add("players", new JsonArray());
+                    }
 
 
-						String result = new BufferedReader(new InputStreamReader(con.getErrorStream()))
-								.lines().collect(Collectors.joining("\n"));
-						BCPing.log.info("[BetacraftPing] Error: \"" + result + "\"");
-					}
-					Thread.sleep(60000);
-				}
+                    String data = BCPing.gson.toJson(jobj);
+                    //BCPing.log.info(data);
 
-			}
-		} catch (Throwable t) {
-			// Prevent fail messages at server shutdown
-			if (!BCPing.running)
-				return;
-			//t.printStackTrace();
-			BCPing.log.warning("[BetacraftPing] The heartbeat was permanently interrupted (" + t.getMessage() + ")");
-		}
-	}
+                    byte[] json = data.getBytes("UTF-8");
 
-	public static ErrResponse readResponse(InputStream is) {
-		try {
-			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                    os.write(json);
+                    os.flush();
+                    os.close();
 
-			int nRead;
-			byte[] readData = new byte[is.available()];
+                    // process response
+                    ErrResponse response = readResponse(con.getInputStream());
 
-			while ((nRead = is.read(readData, 0, readData.length)) != -1) {
-				buffer.write(readData, 0, nRead);
-			}
+                    if (response != null) {
+                        if (!response.error) {
+                            if (failsInARow != 0) {
+                                BCPing.log.info("[BetacraftPing] Server list ping was successful");
+                                //BCPing.log.info("[BetaCraftPing] You can customize your server's appearance on the list by going to: 'https://api.betacraft.uk/edit_server.jsp?id=" + privatekey + "'");
+                            }
+                            failsInARow = 0;
+                        } else {
+                            failsInARow++;
+                            if (failsInARow <= 5) {
+                                BCPing.log.info("[BetacraftPing] Failed to ping the server list");
+                                BCPing.log.info("[BetacraftPing] Error: \"" + response.message + "\"");
+                            }
+                        }
+                    } else {
+                        failsInARow++;
+                        if (failsInARow <= 5) {
+                            BCPing.log.info("[BetacraftPing] Failed to read ping response (is null)");
+                        }
+                    }
 
-			buffer.flush();
-			String responString = new String(buffer.toByteArray());
+                    Thread.sleep(60000);
+                } catch (Throwable t) {
+                    // Prevent fail messages at server shutdown
+                    if (!BCPing.running)
+                        return;
+                    //t.printStackTrace();
+                    failsInARow++;
+                    if (failsInARow <= 5) {
+                        BCPing.log.warning("[BetacraftPing] Failed to ping server list. (" + t.getMessage() + ")");
+                        BCPing.log.warning("[BetacraftPing] Perhaps ping_details.json is not configured properly?");
 
-			//System.out.println(responString);
 
-			return BCPing.gson.fromJson(responString, ErrResponse.class);
-		} catch (Throwable t) {
-			BCPing.log.warning("Failed to read response: " + t.getMessage());
-			return null;
-		}
-	}
-	
-	public static class ErrResponse {
-		public boolean error;
-		public String message;
-	}
+                        String result = new BufferedReader(new InputStreamReader(con.getErrorStream()))
+                                .lines().collect(Collectors.joining("\n"));
+                        BCPing.log.info("[BetacraftPing] Error: \"" + result + "\"");
+                    }
+                    Thread.sleep(60000);
+                }
+
+            }
+        } catch (Throwable t) {
+            // Prevent fail messages at server shutdown
+            if (!BCPing.running)
+                return;
+            //t.printStackTrace();
+            BCPing.log.warning("[BetacraftPing] The heartbeat was permanently interrupted (" + t.getMessage() + ")");
+        }
+    }
+
+    public static ErrResponse readResponse(InputStream is) {
+        try {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+            int nRead;
+            byte[] readData = new byte[is.available()];
+
+            while ((nRead = is.read(readData, 0, readData.length)) != -1) {
+                buffer.write(readData, 0, nRead);
+            }
+
+            buffer.flush();
+            String responString = new String(buffer.toByteArray());
+
+            //System.out.println(responString);
+
+            return BCPing.gson.fromJson(responString, ErrResponse.class);
+        } catch (Throwable t) {
+            BCPing.log.warning("Failed to read response: " + t.getMessage());
+            return null;
+        }
+    }
+
+    public static class ErrResponse {
+        public boolean error;
+        public String message;
+    }
 }

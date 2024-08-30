@@ -15,8 +15,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import pl.moresteck.uberbukkit.Uberbukkit;
 import uk.betacraft.bukkitversion.BukkitVersion;
+import uk.betacraft.uberbukkit.Uberbukkit;
 
 /**
  * 
@@ -24,92 +24,92 @@ import uk.betacraft.bukkitversion.BukkitVersion;
  *
  */
 public class BCPing extends JavaPlugin {
-	public static Server server;
-	public static Logger log;
-	public static BukkitVersion bukkitversion;
-	public static Gson gson = new GsonBuilder().setPrettyPrinting().create();
-	
-	PingThread thread;
-	public static Config config;
-	public static boolean running = true;
-	public static boolean uberbukkit = false;
-	
-	//protected static final String HOST = "http://localhost:2137";
-	protected static final String HOST = "https://api.betacraft.uk/v2";
+    public static Server server;
+    public static Logger log;
+    public static BukkitVersion bukkitversion;
+    public static Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-	public void onEnable() {
-		server = this.getServer();
-		log = this.getServer().getLogger();
-		bukkitversion = new BukkitVersion(this);
+    PingThread thread;
+    public static Config config;
+    public static boolean running = true;
+    public static boolean uberbukkit = false;
 
-		log.info("[BetacraftPing] BetacraftPing v" + this.getDescription().getVersion() + " enabled.");
-		
-		try {
-			Uberbukkit.getPVN();
-			uberbukkit = true;
-			log.info("[BetacraftPing] Uberbukkit detected");
-		} catch (Throwable t) {}
-		
-		
-		File configfile = new File("plugins/BetacraftPing/ping_details.json");
-		String pingdetails = null;
-		try {
-			pingdetails = new String(Files.readAllBytes(configfile.toPath()), "UTF-8");
-		} catch (Throwable t) {
-			if (!(t instanceof NoSuchFileException)) {
-				t.printStackTrace();
-			}
-			configfile.getParentFile().mkdirs();
-		}
-		if (pingdetails != null) {
-			config = gson.fromJson(pingdetails, Config.class);
-			// TODO validation?
-		} else {
-			config = new Config();
-			String serverip = Bukkit.getServer().getIp();
-			
-			if (serverip.equals("")) {
-				serverip = getIPFromAmazon();
-			}
-			config.socket = serverip + ":" + Bukkit.getServer().getPort();
-			config.name = "A Minecraft server";
-			config.description = "";
-			config.category = Config.getCategory();
-			config.protocol = Config.getPVN();
-			config.send_players = true;
-			
-			if (uberbukkit) {
-				config.game_version = Config.getLatestForPVN(config.protocol);
-			} else {
-				config.game_version = bukkitversion.getVersion();
-			}
-			
-			try {
-				Files.write(configfile.toPath(), gson.toJson(config).getBytes("UTF-8"));
-			} catch (Throwable t) {
-				log.warning("[BetacraftPing] Failed to write default configuration! Disabling...");
-				this.getServer().getPluginManager().disablePlugin(this);
-				running = false;
-				return;
-			}
-			
-			log.warning("[BetacraftPing] Failed to load configuration!");
-			log.warning("[BetacraftPing] Wrote default configuration --- see plugins/BetacraftPing/ping_details.json");
-		}
-		
-		SendIcon.sendIcon();
-		
-		thread = new PingThread();
-		thread.start();
-	}
-	
-	public void onDisable() {
-		log.info("[BetacraftPing] Disabling...");
-		running = false;
-		if (thread != null) thread.interrupt();
-	}
-	
-	public static String getIPFromAmazon() {
+    //protected static final String HOST = "http://localhost:2137";
+    protected static final String HOST = "https://api.betacraft.uk/v2";
+
+    public void onEnable() {
+        server = this.getServer();
+        log = this.getServer().getLogger();
+        bukkitversion = new BukkitVersion(this);
+
+        log.info("[BetacraftPing] BetacraftPing v" + this.getDescription().getVersion() + " enabled.");
+
+        try {
+            Uberbukkit.getTargetPVN();
+            uberbukkit = true;
+            log.info("[BetacraftPing] Uberbukkit detected");
+        } catch (Throwable t) {}
+
+
+        File configfile = new File("plugins/BetacraftPing/ping_details.json");
+        String pingdetails = null;
+        try {
+            pingdetails = new String(Files.readAllBytes(configfile.toPath()), "UTF-8");
+        } catch (Throwable t) {
+            if (!(t instanceof NoSuchFileException)) {
+                t.printStackTrace();
+            }
+            configfile.getParentFile().mkdirs();
+        }
+        if (pingdetails != null) {
+            config = gson.fromJson(pingdetails, Config.class);
+            // TODO validation?
+        } else {
+            config = new Config();
+            String serverip = Bukkit.getServer().getIp();
+
+            if (serverip.equals("")) {
+                serverip = getIPFromAmazon();
+            }
+            config.socket = serverip + ":" + Bukkit.getServer().getPort();
+            config.name = "A Minecraft server";
+            config.description = "";
+            config.category = Config.getCategory();
+            config.protocol = Config.getPVN();
+            config.send_players = true;
+
+            if (uberbukkit) {
+                config.game_version = Config.getLatestForPVN(config.protocol);
+            } else {
+                config.game_version = bukkitversion.getVersion();
+            }
+
+            try {
+                Files.write(configfile.toPath(), gson.toJson(config).getBytes("UTF-8"));
+            } catch (Throwable t) {
+                log.warning("[BetacraftPing] Failed to write default configuration! Disabling...");
+                this.getServer().getPluginManager().disablePlugin(this);
+                running = false;
+                return;
+            }
+
+            log.warning("[BetacraftPing] Failed to load configuration!");
+            log.warning("[BetacraftPing] Wrote default configuration --- see plugins/BetacraftPing/ping_details.json");
+        }
+
+        SendIcon.sendIcon();
+
+        thread = new PingThread();
+        thread.start();
+    }
+
+    public void onDisable() {
+        log.info("[BetacraftPing] Disabling...");
+        running = false;
+        if (thread != null) thread.interrupt();
+    }
+
+    public static String getIPFromAmazon() {
         try {
             URL myIP = new URL("http://checkip.amazonaws.com");
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(myIP.openStream()));

@@ -13,63 +13,63 @@ import uk.betacraft.serverlist.PingThread.ErrResponse;
 
 public class SendIcon {
 
-	public static void sendIcon() {
+    public static void sendIcon() {
 
-		String icon = Config.getIcon();
+        String icon = Config.getIcon();
 
-		HttpURLConnection con = null;
-		try {
-			URL url = new URL(BCPing.HOST + "/server_update_icon");
-			try {
-				con = (HttpURLConnection) url.openConnection();
-				con.setRequestMethod("POST");
-				con.addRequestProperty("Content-Type", "application/json");
-				con.setUseCaches(false);
-				con.setDoOutput(true);
-				con.setDoInput(true);
+        HttpURLConnection con = null;
+        try {
+            URL url = new URL(BCPing.HOST + "/server_update_icon");
+            try {
+                con = (HttpURLConnection) url.openConnection();
+                con.setRequestMethod("POST");
+                con.addRequestProperty("Content-Type", "application/json");
+                con.setUseCaches(false);
+                con.setDoOutput(true);
+                con.setDoInput(true);
 
-				OutputStream os = con.getOutputStream();
+                OutputStream os = con.getOutputStream();
 
-				JsonObject jobj = new JsonObject();
-				jobj.addProperty("socket", BCPing.config.socket);
-				if (icon == null) {
-					jobj.addProperty("icon", "");
-				} else {
-					jobj.addProperty("icon", icon);
-				}
-				
-				if (BCPing.config.private_key != null) {
-					jobj.addProperty("private_key", BCPing.config.private_key);
-				}
+                JsonObject jobj = new JsonObject();
+                jobj.addProperty("socket", BCPing.config.socket);
+                if (icon == null) {
+                    jobj.addProperty("icon", "");
+                } else {
+                    jobj.addProperty("icon", icon);
+                }
 
-				String data = BCPing.gson.toJson(jobj);
+                if (BCPing.config.private_key != null) {
+                    jobj.addProperty("private_key", BCPing.config.private_key);
+                }
 
-				byte[] json = data.getBytes("UTF-8");
+                String data = BCPing.gson.toJson(jobj);
 
-				os.write(json);
-				os.flush();
-				os.close();
+                byte[] json = data.getBytes("UTF-8");
 
-				// process response
-				ErrResponse response = PingThread.readResponse(con.getInputStream());
-				if (response != null) {
-					if (!response.error) {
-						BCPing.log.info("[BetacraftPing] Server icon updated successfully.");
-					} else {
-						BCPing.log.info("[BetacraftPing] Failed to update server icon");
-						BCPing.log.info("[BetacraftPing] Error: \"" + response.message + "\"");
-					}
-				} else {
-					BCPing.log.info("[BetacraftPing] Failed to read ping response (is null)");
-				}
-			} catch (Throwable t) {
-				BCPing.log.warning("[BetacraftPing] Failed to update server icon (" + t.getMessage() + ")");
-				String result = new BufferedReader(new InputStreamReader(con.getErrorStream()))
-						.lines().collect(Collectors.joining("\n"));
-				BCPing.log.info("[BetacraftPing] Error: \"" + result + "\"");
-			}
-		} catch (Throwable t) {
-			BCPing.log.warning("[BetacraftPing] Failed to update server icon (" + t.getMessage() + ")");
-		}
-	}
+                os.write(json);
+                os.flush();
+                os.close();
+
+                // process response
+                ErrResponse response = PingThread.readResponse(con.getInputStream());
+                if (response != null) {
+                    if (!response.error) {
+                        BCPing.log.info("[BetacraftPing] Server icon updated successfully.");
+                    } else {
+                        BCPing.log.info("[BetacraftPing] Failed to update server icon");
+                        BCPing.log.info("[BetacraftPing] Error: \"" + response.message + "\"");
+                    }
+                } else {
+                    BCPing.log.info("[BetacraftPing] Failed to read ping response (is null)");
+                }
+            } catch (Throwable t) {
+                BCPing.log.warning("[BetacraftPing] Failed to update server icon (" + t.getMessage() + ")");
+                String result = new BufferedReader(new InputStreamReader(con.getErrorStream()))
+                        .lines().collect(Collectors.joining("\n"));
+                BCPing.log.info("[BetacraftPing] Error: \"" + result + "\"");
+            }
+        } catch (Throwable t) {
+            BCPing.log.warning("[BetacraftPing] Failed to update server icon (" + t.getMessage() + ")");
+        }
+    }
 }
