@@ -117,13 +117,13 @@ public class PingThread extends Thread {
                                 .lines().collect(Collectors.joining("\n"));
                         BCPing.log.info("[BetacraftPing] Error: \"" + result + "\"");
                     }
-                    
+
                     try {
                         Thread.sleep(60000);
                     } catch (Throwable t2) {
                         if (!BCPing.running)
                             return;
-                        
+
                         t2.printStackTrace();
                     }
                 }
