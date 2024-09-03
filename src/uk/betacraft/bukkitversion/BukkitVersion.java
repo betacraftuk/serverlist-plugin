@@ -113,7 +113,7 @@ public class BukkitVersion {
             return 4;
         } else if (version.startsWith("1.0.1")) {
             return 5;
-        } else if (version.startsWith("1.1")) {
+        } else if (version.equals("1.1")) {
             return 6;
         } else if (version.startsWith("1.2.")) {
             int thirddigit = Integer.parseInt(version.split("\\.")[2]);
@@ -381,11 +381,19 @@ public class BukkitVersion {
                     Method newmethod = bukkitclass.getDeclaredMethod("getOnlinePlayers");
                     Object t = newmethod.invoke(null);
 
-                    @SuppressWarnings("unchecked")
-                    Collection<? extends Player> cs = (Collection<? extends Player>) t;
-                    for (Player p: cs) {
-                        if (p != null) {
-                            arlp.add(p);
+                    if (t instanceof Collection) {
+                        @SuppressWarnings("unchecked")
+                        Collection<? extends Player> cs = (Collection<? extends Player>) t;
+                        for (Player p: cs) {
+                            if (p != null) {
+                                arlp.add(p);
+                            }
+                        }
+                    } else {
+                        for (Player p: BCPing.server.getOnlinePlayers()) {
+                            if (p != null) {
+                                arlp.add(p);
+                            }
                         }
                     }
                 } catch (Throwable t) {

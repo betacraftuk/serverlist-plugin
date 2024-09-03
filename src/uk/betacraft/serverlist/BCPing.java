@@ -37,7 +37,7 @@ public class BCPing extends JavaPlugin {
 
     public static String PLUGIN_VERSION = "";
 
-    //protected static final String HOST = "http://localhost:2137";
+    //protected static final String HOST = "http://localhost:2137/api/v2";
     protected static final String HOST = "https://api.betacraft.uk/v2";
 
     public void onEnable() {
