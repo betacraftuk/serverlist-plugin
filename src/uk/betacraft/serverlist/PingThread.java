@@ -113,9 +113,13 @@ public class PingThread extends Thread {
                         BCPing.log.warning("[BetacraftPing] Perhaps ping_details.json is not configured properly?");
 
 
-                        String result = new BufferedReader(new InputStreamReader(con.getErrorStream()))
-                                .lines().collect(Collectors.joining("\n"));
-                        BCPing.log.info("[BetacraftPing] Error: \"" + result + "\"");
+                        try {
+                            String result = new BufferedReader(new InputStreamReader(con.getErrorStream()))
+                                    .lines().collect(Collectors.joining("\n"));
+                            BCPing.log.info("[BetacraftPing] Error: \"" + result + "\"");
+                        } catch (Throwable t2) {
+                            t2.printStackTrace();
+                        }
                     }
 
                     try {
