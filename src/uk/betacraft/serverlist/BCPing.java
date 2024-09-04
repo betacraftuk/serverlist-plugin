@@ -102,8 +102,6 @@ public class BCPing extends JavaPlugin {
             log.warning("[BetacraftPing] Wrote default configuration --- see plugins/BetacraftPing/ping_details.json");
         }
 
-        SendIcon.sendIcon();
-
         pingThread = new PingThread();
         pingThread.start();
 
