@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -36,38 +37,34 @@ public class PingThread extends Thread {
 
                     ArrayList<org.bukkit.entity.Player> online = BCPing.bukkitversion.getOnlinePlayers();
 
-                    JsonObject jobj = (JsonObject) BCPing.gson.toJsonTree(BCPing.config);
+                    JsonObject payload = (JsonObject) BCPing.gson.toJsonTree(BCPing.config);
 
-                    jobj.addProperty("max_players", Bukkit.getServer().getMaxPlayers());
-                    jobj.addProperty("online_players", online.size());
+                    payload.addProperty("max_players", Bukkit.getServer().getMaxPlayers());
+                    payload.addProperty("online_players", online.size());
 
                     JsonObject software = new JsonObject();
                     software.addProperty("name", Bukkit.getServer().getName());
                     software.addProperty("version", Bukkit.getServer().getVersion());
-                    jobj.add("software", software);
 
-                    jobj.addProperty("online_mode", Bukkit.getServer().getOnlineMode());
+                    payload.add("software", software);
+                    payload.addProperty("online_mode", Bukkit.getServer().getOnlineMode());
 
                     if (BCPing.config.send_players) {
+                        JsonArray playersArray = new JsonArray();
 
-                        JsonArray jarr = new JsonArray();
+                        for (Player bukkitPlayer : online) {
+                            JsonObject playerObject = new JsonObject();
+                            playerObject.addProperty("username", bukkitPlayer.getName());
 
-                        for (org.bukkit.entity.Player bplayer : online) {
-
-                            JsonObject pobj = new JsonObject();
-
-                            pobj.addProperty("username", bplayer.getName());
-                            jarr.add(pobj);
+                            playersArray.add(playerObject);
                         }
 
-
-                        jobj.add("players", jarr);
+                        payload.add("players", playersArray);
                     } else {
-                        jobj.add("players", new JsonArray());
+                        payload.add("players", new JsonArray());
                     }
 
-
-                    String data = BCPing.gson.toJson(jobj);
+                    String data = BCPing.gson.toJson(payload);
                     //BCPing.log.info(data);
 
                     byte[] json = data.getBytes("UTF-8");
@@ -86,9 +83,11 @@ public class PingThread extends Thread {
 
                                 SendIcon.sendIcon();
                             }
+
                             failsInARow = 0;
                         } else {
                             failsInARow++;
+
                             if (failsInARow <= 5) {
                                 BCPing.log.info("[BetacraftPing] Failed to ping the server list");
                                 BCPing.log.info("[BetacraftPing] Error: \"" + response.message + "\"");
@@ -96,6 +95,7 @@ public class PingThread extends Thread {
                         }
                     } else {
                         failsInARow++;
+
                         if (failsInARow <= 5) {
                             BCPing.log.info("[BetacraftPing] Failed to read ping response (is null)");
                         }
@@ -106,8 +106,9 @@ public class PingThread extends Thread {
                     // Prevent fail messages at server shutdown
                     if (!BCPing.running)
                         return;
-                    //t.printStackTrace();
+
                     failsInARow++;
+
                     if (failsInARow <= 5) {
                         BCPing.log.warning("[BetacraftPing] Failed to ping server list. (" + t.getMessage() + ")");
                         BCPing.log.warning("[BetacraftPing] Perhaps ping_details.json is not configured properly?");
@@ -137,7 +138,7 @@ public class PingThread extends Thread {
             // Prevent fail messages at server shutdown
             if (!BCPing.running)
                 return;
-            //t.printStackTrace();
+
             BCPing.log.warning("[BetacraftPing] The heartbeat was permanently interrupted (" + t.getMessage() + ")");
         }
     }

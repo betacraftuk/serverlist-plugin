@@ -56,18 +56,20 @@ public class BCPing extends JavaPlugin {
         } catch (Throwable t) {}
 
 
-        File configfile = new File("plugins/BetacraftPing/ping_details.json");
-        String pingdetails = null;
+        File pingDetailsFile = new File("plugins/BetacraftPing/ping_details.json");
+        String pingDetails = null;
+
         try {
-            pingdetails = new String(Files.readAllBytes(configfile.toPath()), "UTF-8");
+            pingDetails = new String(Files.readAllBytes(pingDetailsFile.toPath()), "UTF-8");
         } catch (Throwable t) {
             if (!(t instanceof NoSuchFileException)) {
                 t.printStackTrace();
             }
-            configfile.getParentFile().mkdirs();
+            pingDetailsFile.getParentFile().mkdirs();
         }
-        if (pingdetails != null) {
-            config = gson.fromJson(pingdetails, Config.class);
+
+        if (pingDetails != null) {
+            config = gson.fromJson(pingDetails, Config.class);
             // TODO validation?
         } else {
             config = new Config();
@@ -76,6 +78,7 @@ public class BCPing extends JavaPlugin {
             if (serverip.equals("")) {
                 serverip = getIPFromAmazon();
             }
+
             config.socket = serverip + ":" + Bukkit.getServer().getPort();
             config.name = "A Minecraft server";
             config.description = "";
@@ -90,7 +93,7 @@ public class BCPing extends JavaPlugin {
             }
 
             try {
-                Files.write(configfile.toPath(), gson.toJson(config).getBytes("UTF-8"));
+                Files.write(pingDetailsFile.toPath(), gson.toJson(config).getBytes("UTF-8"));
             } catch (Throwable t) {
                 log.warning("[BetacraftPing] Failed to write default configuration! Disabling...");
                 this.getServer().getPluginManager().disablePlugin(this);
@@ -127,8 +130,8 @@ public class BCPing extends JavaPlugin {
         try {
             URL myIP = new URL("http://checkip.amazonaws.com");
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(myIP.openStream()));
-            return bufferedReader.readLine();
 
+            return bufferedReader.readLine();
         } catch (Exception e) {
             log.warning("[BetacraftPing] Failed to get IP from Amazon! Are you offline?");
             e.printStackTrace();

@@ -100,20 +100,20 @@ public class Config {
     private static String icon = null;
     public static String getIcon() {
         if (icon == null) {
-            File iconfile = new File("plugins/BetacraftPing/server_icon.png");
-            if (!iconfile.exists()) {
+            File iconFile = new File("plugins/BetacraftPing/server_icon.png");
+            if (!iconFile.exists()) {
                 BCPing.log.warning("[BetacraftPing] No server icon found!");
                 return icon;
             }
 
-            if (iconfile.length() > 64000) {
+            if (iconFile.length() > 64000) {
                 BCPing.log.severe("[BetacraftPing] Server icon size is too big! (64 kB max, recommended res: 128x128)");
             } else {
                 try {
-                    byte[] filebytes = Files.readAllBytes(iconfile.toPath());
+                    byte[] filebytes = Files.readAllBytes(iconFile.toPath());
                     byte[] b64str = Base64.getEncoder().encode(filebytes);
-                    icon = new String(b64str, "UTF-8");
 
+                    icon = new String(b64str, "UTF-8");
                 } catch (Throwable t) {
                     BCPing.log.severe("[BetacraftPing] Failed to read server icon:");
                     t.printStackTrace();
