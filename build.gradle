@@ -1,0 +1,21 @@
+plugins {
+	id 'java'
+	id 'eclipse'
+}
+
+targetCompatibility = 8;
+sourceCompatibility = 8;
+
+jar {
+	manifest {
+		attributes(
+			'Class-Path': 'BetacraftPing/gson.jar'
+		)
+	}
+}
+
+dependencies {
+	// https://getbukkit.org/download/craftbukkit
+	// https://betacraft.uk/utilities
+	implementation files('lib/craftbukkit-1.0.0-SNAPSHOT.jar', 'lib/uberbukkit.jar')
+}
