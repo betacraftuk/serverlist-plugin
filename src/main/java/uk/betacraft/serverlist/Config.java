@@ -28,17 +28,15 @@ public class Config {
         case 0:
             return "beta_14";
         case 1:
-            return "beta_17";
         case 2:
             return "beta_17";
         case 3:
             return "beta_21";
         case 4:
-            return "release_22";
         case 5:
             return "release_22";
         case 6:
-            return "release_22";
+            return "release_23";
         case 7:
             return "release_28";
         case 8:
@@ -62,9 +60,35 @@ public class Config {
         case 17:
             return "release_78";
         case 18:
-            return "release_4";
+            return "4";
         case 19:
-            return "release_5";
+            return "5";
+        case 20:
+            return "47";
+        case 21:
+            return "107";
+        case 22:
+            return "109";
+        case 23:
+            return "110";
+        case 24:
+            return "210";
+        case 25:
+            return "315";
+        case 26:
+            return "316";
+        case 27:
+            return "335";
+        case 28:
+            return "338";
+        case 29:
+            return "340";
+        case 30:
+            return "393";
+        case 31:
+            return "401";
+        case 32:
+            return "404";
         default:
             return "unknown";
         }

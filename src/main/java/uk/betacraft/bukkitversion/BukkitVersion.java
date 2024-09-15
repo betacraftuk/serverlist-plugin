@@ -194,7 +194,7 @@ public class BukkitVersion {
             return 20;
         } else if (version.equals("1.9")) {
             return 21;
-        } else if (version.equals("1.9.")) {
+        } else if (version.startsWith("1.9.")) {
             int thirddigit = Integer.parseInt(version.split("\\.")[2]);
             if (thirddigit == 2) {
                 // 1.9.2

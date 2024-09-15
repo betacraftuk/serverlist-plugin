@@ -29,6 +29,9 @@ bin
 .project
 .classpath
 
+# IntelliJ IDEA
+.idea
+
 # MacOS
 .DS_Store
 
